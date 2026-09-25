@@ -2,10 +2,8 @@ const prisma = require('../config/prisma')
 const asyncHandler = require('../utils/asyncHandler')
 const { hashPassword, comparePassword } = require('../utils/hash')
 const { signToken } = require('../utils/jwt')
-const { generateResetToken, hashResetToken } = require('../utils/resetToken')
-const { sendMail } = require('../utils/mailer')
-
-const RESET_TOKEN_TTL_MS = 60 * 60 * 1000
+const { hashResetToken } = require('../utils/resetToken')
+const { initiatePasswordReset } = require('../services/passwordReset.service')
 
 function toPublicUser(user) {
   return {
@@ -80,22 +78,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
   const user = await prisma.user.findUnique({ where: { email } })
 
   if (user) {
-    const { rawToken, tokenHash } = generateResetToken()
-
-    await prisma.passwordResetToken.create({
-      data: {
-        userId: user.id,
-        tokenHash,
-        expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_MS),
-      },
-    })
-
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${rawToken}`
-    await sendMail({
-      to: user.email,
-      subject: 'Reset your Campus Coin password',
-      html: `<p>Click the link below to reset your password. This link expires in 1 hour.</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
-    })
+    await initiatePasswordReset(user)
   }
 
   res.json({ message: 'If that email is registered, a reset link has been sent.' })
