@@ -22,6 +22,11 @@ enum RecurrenceInterval {
   MONTHLY
 }
 
+enum SavingTipKind {
+  AVERAGE_SPIKE
+  BUDGET_EXCEEDED
+}
+
 model User {
   id                    Int      @id @default(autoincrement())
   name                  String
@@ -56,6 +61,7 @@ model Category {
 
   transactions Transaction[]
   budgets      Budget[]
+  savingTips   SavingTip[]
 
   @@unique([userId, name, type])
   @@map("categories")
@@ -100,16 +106,18 @@ model Budget {
 }
 
 model SavingTip {
-  id           Int      @id @default(autoincrement())
+  id           Int           @id @default(autoincrement())
   userId       Int
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   categoryId   Int?
-  month        DateTime @db.Date
-  tipText      String   @db.VarChar(500)
-  impactScore  Decimal  @db.Decimal(10, 2)
-  isPinned     Boolean  @default(false)
-  isDismissed  Boolean  @default(false)
-  createdAt    DateTime @default(now())
+  category     Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  kind         SavingTipKind
+  month        DateTime      @db.Date
+  tipText      String        @db.VarChar(500)
+  impactScore  Decimal       @db.Decimal(10, 2)
+  isPinned     Boolean       @default(false)
+  isDismissed  Boolean       @default(false)
+  createdAt    DateTime      @default(now())
 
   @@map("saving_tips")
 }

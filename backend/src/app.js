@@ -4,6 +4,9 @@ const morgan = require('morgan')
 const authRoutes = require('./routes/auth.routes')
 const categoryRoutes = require('./routes/category.routes')
 const transactionRoutes = require('./routes/transaction.routes')
+const budgetRoutes = require('./routes/budget.routes')
+const reportRoutes = require('./routes/report.routes')
+const tipRoutes = require('./routes/tip.routes')
 
 const app = express()
 
@@ -18,6 +21,9 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/categories', categoryRoutes)
 app.use('/api/transactions', transactionRoutes)
+app.use('/api/budgets', budgetRoutes)
+app.use('/api/reports', reportRoutes)
+app.use('/api/tips', tipRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' })
