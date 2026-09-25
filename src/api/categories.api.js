@@ -1,0 +1,8 @@
+import client from './client'
+
+export const listCategories = () => client.get('/categories').then((r) => r.data.categories)
+export const createCategory = (data) =>
+  client.post('/categories', data).then((r) => r.data.category)
+export const updateCategory = (id, data) =>
+  client.patch(`/categories/${id}`, data).then((r) => r.data.category)
+export const deleteCategory = (id) => client.delete(`/categories/${id}`)

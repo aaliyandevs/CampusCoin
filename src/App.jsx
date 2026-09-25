@@ -1,8 +1,19 @@
+import { BrowserRouter } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
+import { AuthProvider } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
+import AppRoutes from './routes/AppRoutes'
+
 function App() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50">
-      <p className="text-slate-400">Campus Coin</p>
-    </div>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+          <Toaster position="top-right" />
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 
