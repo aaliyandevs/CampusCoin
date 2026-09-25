@@ -14,9 +14,12 @@ import html2canvas from 'html2canvas-pro'
 import jsPDF from 'jspdf'
 import Card from '../../components/common/Card'
 import Button from '../../components/common/Button'
+import Select from '../../components/common/Select'
+import Input from '../../components/common/Input'
 import Spinner from '../../components/common/Spinner'
 import { useTheme } from '../../context/ThemeContext'
 import * as reportsApi from '../../api/reports.api'
+import * as categoriesApi from '../../api/categories.api'
 import { formatCurrency } from '../../utils/format'
 import { getChartColors } from '../../utils/chartColors'
 
@@ -46,22 +49,52 @@ function Reports() {
 
   const [month, setMonth] = useState(currentMonthInput())
   const [period, setPeriod] = useState('daily')
+  const [categoryId, setCategoryId] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [categories, setCategories] = useState([])
   const [categorySummary, setCategorySummary] = useState(null)
   const [trend, setTrend] = useState(null)
   const [periodData, setPeriodData] = useState(null)
 
+  const hasCustomRange = Boolean(dateFrom && dateTo)
+  const categoryFilter = categoryId ? Number(categoryId) : undefined
+  const incomeCategories = categories.filter((c) => c.type === 'INCOME')
+  const expenseCategories = categories.filter((c) => c.type === 'EXPENSE')
+
+  useEffect(() => {
+    categoriesApi.listCategories().then(setCategories)
+  }, [])
+
   useEffect(() => {
     const monthDate = `${month}-01`
-    reportsApi.getCategorySummary({ month: monthDate }).then(setCategorySummary)
+
+    reportsApi
+      .getCategorySummary(
+        hasCustomRange
+          ? { startDate: dateFrom, endDate: dateTo, categoryId: categoryFilter }
+          : { month: monthDate, categoryId: categoryFilter },
+      )
+      .then(setCategorySummary)
     reportsApi.getIncomeVsExpense({ months: 6 }).then(setTrend)
     if (period === 'daily') {
-      reportsApi.getDailySummary({ month: monthDate }).then(setPeriodData)
+      reportsApi
+        .getDailySummary({ month: monthDate, categoryId: categoryFilter })
+        .then(setPeriodData)
     } else {
-      reportsApi.getWeeklySummary({ month: monthDate }).then((weeks) =>
-        setPeriodData(weeks.map((w) => ({ ...w, label: `Week ${w.week}` }))),
-      )
+      reportsApi
+        .getWeeklySummary({ month: monthDate, categoryId: categoryFilter })
+        .then((weeks) => setPeriodData(weeks.map((w) => ({ ...w, label: `Week ${w.week}` }))))
     }
-  }, [month, period])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [month, period, categoryId, dateFrom, dateTo])
+
+  const hasFilters = Boolean(categoryId || dateFrom || dateTo)
+  const clearFilters = () => {
+    setCategoryId('')
+    setDateFrom('')
+    setDateTo('')
+  }
 
   const expenseByCategory = (categorySummary?.categories ?? [])
     .filter((c) => c.type === 'EXPENSE')
@@ -92,6 +125,55 @@ function Reports() {
           </Button>
         </div>
       </div>
+
+      <Card>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Input
+            type="date"
+            label="From"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+          />
+          <Input
+            type="date"
+            label="To"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+          />
+          <Select
+            label="Category / income source"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            className="sm:col-span-2"
+          >
+            <option value="">All categories</option>
+            <optgroup label="Income sources">
+              {incomeCategories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Expense categories">
+              {expenseCategories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </optgroup>
+          </Select>
+        </div>
+        <p className="mt-3 text-xs text-stone-400 dark:text-stone-500">
+          {hasCustomRange
+            ? 'Showing the custom date range above instead of the selected month.'
+            : 'Set both From and To to filter by a custom date range instead of the selected month.'}{' '}
+          {hasFilters && (
+            <button onClick={clearFilters} className="font-medium text-brand-600 hover:text-brand-700">
+              Clear filters
+            </button>
+          )}
+        </p>
+      </Card>
 
       <div ref={reportRef} className="flex flex-col gap-6 bg-stone-50 dark:bg-stone-950">
         <Card>
@@ -191,7 +273,9 @@ function Reports() {
                 <XAxis dataKey={period === 'daily' ? 'date' : 'label'} tick={{ fontSize: 12 }} />
                 <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 12 }} />
                 <Tooltip content={<ChartTooltip />} />
-                <Bar dataKey="expense" name="Spent" fill={colors.single} radius={[4, 4, 0, 0]} />
+                <Legend />
+                <Bar dataKey="income" name="Income" fill={colors.income} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="expense" name="Expense" fill={colors.expense} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
