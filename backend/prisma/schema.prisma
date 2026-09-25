@@ -77,7 +77,7 @@ model Transaction {
   recurrenceInterval   RecurrenceInterval?
   nextOccurrenceDate   DateTime?           @db.Date
   recurringSourceId    Int?
-  recurringSource      Transaction?        @relation("RecurringInstances", fields: [recurringSourceId], references: [id])
+  recurringSource      Transaction?        @relation("RecurringInstances", fields: [recurringSourceId], references: [id], onDelete: SetNull)
   recurringInstances   Transaction[]       @relation("RecurringInstances")
 
   createdAt            DateTime            @default(now())

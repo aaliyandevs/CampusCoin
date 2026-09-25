@@ -12,4 +12,19 @@ function validate(schema) {
   }
 }
 
+function validateQuery(schema) {
+  return (req, res, next) => {
+    const result = schema.safeParse(req.query)
+    if (!result.success) {
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: result.error.flatten().fieldErrors,
+      })
+    }
+    req.query = result.data
+    next()
+  }
+}
+
 module.exports = validate
+module.exports.validateQuery = validateQuery
