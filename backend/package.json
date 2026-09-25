@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Campus Coin backend API",
   "main": "server.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
+    "postinstall": "prisma generate",
     "db:seed": "node prisma/seed.js"
   },
   "keywords": [],
