@@ -6,3 +6,147 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+enum RecurrenceInterval {
+  WEEKLY
+  MONTHLY
+}
+
+model User {
+  id                    Int      @id @default(autoincrement())
+  name                  String
+  email                 String   @unique
+  passwordHash          String
+  role                  Role     @default(STUDENT)
+  academicYear          String?
+  monthlyAllowance      Decimal? @db.Decimal(10, 2)
+  monthlySavingsGoal    Decimal? @db.Decimal(10, 2)
+  isDisabled            Boolean  @default(false)
+  createdAt             DateTime @default(now())
+
+  categories            Category[]
+  transactions          Transaction[]
+  budgets               Budget[]
+  savingTips            SavingTip[]
+  insights              Insight[]
+  passwordResetTokens   PasswordResetToken[]
+  announcements         Announcement[]
+
+  @@map("users")
+}
+
+model Category {
+  id          Int          @id @default(autoincrement())
+  name        String
+  type        CategoryType
+  isDefault   Boolean      @default(false)
+  userId      Int?
+  user        User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@unique([userId, name, type])
+  @@map("categories")
+}
+
+model Transaction {
+  id                   Int                 @id @default(autoincrement())
+  userId               Int
+  user                 User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId           Int
+  category             Category            @relation(fields: [categoryId], references: [id])
+  amount               Decimal             @db.Decimal(10, 2)
+  type                 CategoryType
+  description          String?
+  date                 DateTime            @db.Date
+  aiSuggestedCategoryId Int?
+
+  isRecurringTemplate  Boolean             @default(false)
+  recurrenceInterval   RecurrenceInterval?
+  nextOccurrenceDate   DateTime?           @db.Date
+  recurringSourceId    Int?
+  recurringSource      Transaction?        @relation("RecurringInstances", fields: [recurringSourceId], references: [id])
+  recurringInstances   Transaction[]       @relation("RecurringInstances")
+
+  createdAt            DateTime            @default(now())
+
+  @@index([userId, date])
+  @@map("transactions")
+}
+
+model Budget {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+  month       DateTime @db.Date
+  limitAmount Decimal  @db.Decimal(10, 2)
+
+  @@unique([userId, categoryId, month])
+  @@map("budgets")
+}
+
+model SavingTip {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId   Int?
+  month        DateTime @db.Date
+  tipText      String   @db.VarChar(500)
+  impactScore  Decimal  @db.Decimal(10, 2)
+  isPinned     Boolean  @default(false)
+  isDismissed  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@map("saving_tips")
+}
+
+model Insight {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  month        DateTime @db.Date
+  summaryText  String   @db.Text
+  tipText      String?  @db.Text
+  isBookmarked Boolean  @default(false)
+  generatedAt  DateTime @default(now())
+
+  @@unique([userId, month])
+  @@map("insights")
+}
+
+model Announcement {
+  id        Int      @id @default(autoincrement())
+  title     String
+  body      String   @db.Text
+  createdBy Int
+  admin     User     @relation(fields: [createdBy], references: [id])
+  createdAt DateTime @default(now())
+
+  @@map("announcements")
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@map("password_reset_tokens")
+}
