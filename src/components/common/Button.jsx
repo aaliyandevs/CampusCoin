@@ -6,6 +6,7 @@ const variants = {
     'border border-stone-300 bg-white text-stone-700 hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-200 dark:hover:bg-stone-800',
   ghost: 'text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-stone-800',
   danger: 'bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800',
+  inverse: 'bg-white text-brand-700 hover:bg-brand-50 active:bg-brand-100',
 }
 
 const sizes = {
@@ -19,7 +20,7 @@ function Button({ variant = 'primary', size = 'md', className, disabled, childre
     <button
       disabled={disabled}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
         variants[variant],
         sizes[size],
         className,
