@@ -15,8 +15,10 @@ async function sendViaEmailJs({ to, subject, resetUrl, html }) {
       accessToken: process.env.EMAILJS_PRIVATE_KEY,
       template_params: {
         to_email: to,
+        email: to,
         subject,
         reset_url: resetUrl,
+        link: resetUrl,
         message: html,
       },
     }),
