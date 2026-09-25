@@ -27,7 +27,7 @@ function todayString() {
   return new Date().toISOString().slice(0, 10)
 }
 
-function TransactionFormModal({ open, onClose, onSubmit, initialValues }) {
+function TransactionFormModal({ open, onClose, onSubmit, initialValues, defaultType = 'EXPENSE' }) {
   const isEditing = Boolean(initialValues)
   const [categories, setCategories] = useState([])
 
@@ -73,7 +73,7 @@ function TransactionFormModal({ open, onClose, onSubmit, initialValues }) {
               isRecurringTemplate: false,
             }
           : {
-              type: 'EXPENSE',
+              type: defaultType,
               categoryId: '',
               amount: '',
               date: todayString(),
@@ -86,7 +86,7 @@ function TransactionFormModal({ open, onClose, onSubmit, initialValues }) {
     // categories must be in deps: it re-populates <option> elements, and reset()
     // needs to run again after they land or the select's value won't match
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, categories, initialValues, reset])
+  }, [open, categories, initialValues, defaultType, reset])
 
   const filteredCategories = categories.filter((c) => c.type === type)
 
