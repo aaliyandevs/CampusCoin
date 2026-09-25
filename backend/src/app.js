@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
+const prisma = require('./config/prisma')
 const authRoutes = require('./routes/auth.routes')
 const categoryRoutes = require('./routes/category.routes')
 const transactionRoutes = require('./routes/transaction.routes')
@@ -18,6 +19,19 @@ app.use(morgan('dev'))
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' })
+})
+
+// Touches the database so an external uptime monitor pointed at this route
+// keeps the Aiven free-tier database from powering off due to inactivity
+// (unlike /api/health above, which only checks that the server is running).
+app.get('/api/health/db', async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`
+    res.json({ status: 'ok' })
+  } catch (err) {
+    console.error(err)
+    res.status(503).json({ status: 'error', message: 'Database unreachable' })
+  }
 })
 
 app.use('/api/auth', authRoutes)
