@@ -12,6 +12,7 @@ import CsvImportModal from './CsvImportModal'
 import * as transactionsApi from '../../api/transactions.api'
 import * as categoriesApi from '../../api/categories.api'
 import { formatCurrency } from '../../utils/format'
+import { checkAndNotifyBudget } from '../../utils/budgetAlerts'
 
 const emptyFilters = { startDate: '', endDate: '', categoryId: '', type: '' }
 
@@ -55,6 +56,7 @@ function Transactions() {
       setEditingTransaction(null)
       load()
       toast.success(editingTransaction ? 'Transaction updated' : 'Transaction added')
+      checkAndNotifyBudget(Number(data.categoryId), data.type)
     } catch (err) {
       toast.error(err.response?.data?.message ?? 'Something went wrong')
     }

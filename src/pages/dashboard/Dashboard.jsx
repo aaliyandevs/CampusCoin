@@ -15,6 +15,7 @@ import * as tipsApi from '../../api/tips.api'
 import * as transactionsApi from '../../api/transactions.api'
 import { formatCurrency } from '../../utils/format'
 import { cn } from '../../utils/cn'
+import { checkAndNotifyBudget } from '../../utils/budgetAlerts'
 
 const statusTone = { OK: 'brand', NEAR: 'warning', OVER: 'danger' }
 const barColor = { OK: 'bg-brand-500', NEAR: 'bg-amber-500', OVER: 'bg-rose-500' }
@@ -52,6 +53,7 @@ function Dashboard() {
       loadSummary()
       loadBudgets()
       toast.success('Transaction added')
+      checkAndNotifyBudget(Number(data.categoryId), data.type)
     } catch (err) {
       toast.error(err.response?.data?.message ?? 'Something went wrong')
     }
