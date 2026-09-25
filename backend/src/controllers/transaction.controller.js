@@ -2,6 +2,7 @@ const prisma = require('../config/prisma')
 const asyncHandler = require('../utils/asyncHandler')
 const { generateDueRecurringTransactions } = require('../services/recurring.service')
 const { addInterval } = require('../utils/date')
+const { importTransactionsFromCsv } = require('../services/csvImport.service')
 
 async function assertCategoryUsable(categoryId, userId, type) {
   const category = await prisma.category.findUnique({ where: { id: categoryId } })
@@ -17,7 +18,7 @@ async function assertCategoryUsable(categoryId, userId, type) {
 const list = asyncHandler(async (req, res) => {
   await generateDueRecurringTransactions(req.user.id)
 
-  const { startDate, endDate, categoryId, type } = req.query
+  const { startDate, endDate, categoryId, type } = req.validatedQuery
 
   const where = {
     userId: req.user.id,
@@ -101,4 +102,17 @@ const remove = asyncHandler(async (req, res) => {
   res.status(204).send()
 })
 
-module.exports = { list, create, update, remove }
+const importCsv = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'A CSV file is required' })
+  }
+
+  try {
+    const summary = await importTransactionsFromCsv(req.user.id, req.file.buffer)
+    res.json(summary)
+  } catch (err) {
+    res.status(400).json({ message: err.message })
+  }
+})
+
+module.exports = { list, create, update, remove, importCsv }

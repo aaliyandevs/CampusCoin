@@ -21,7 +21,7 @@ function validateQuery(schema) {
         errors: result.error.flatten().fieldErrors,
       })
     }
-    req.query = result.data
+    req.validatedQuery = result.data
     next()
   }
 }

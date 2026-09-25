@@ -4,7 +4,7 @@ const { startOfMonth, endOfMonth } = require('../utils/date')
 const { getCategorySpend } = require('../services/spend.service')
 
 const list = asyncHandler(async (req, res) => {
-  const monthStart = startOfMonth(req.query.month ?? new Date())
+  const monthStart = startOfMonth(req.validatedQuery.month ?? new Date())
   const monthEnd = endOfMonth(monthStart)
 
   const budgets = await prisma.budget.findMany({

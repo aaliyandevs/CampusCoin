@@ -3,7 +3,7 @@ const asyncHandler = require('../utils/asyncHandler')
 const { startOfMonth, endOfMonth, addMonths } = require('../utils/date')
 
 const categorySummary = asyncHandler(async (req, res) => {
-  const { month, startDate, endDate, categoryId } = req.query
+  const { month, startDate, endDate, categoryId } = req.validatedQuery
 
   const rangeStart = startDate ?? startOfMonth(month ?? new Date())
   const rangeEnd = endDate ?? endOfMonth(month ?? new Date())
@@ -38,7 +38,7 @@ const categorySummary = asyncHandler(async (req, res) => {
 })
 
 const incomeVsExpense = asyncHandler(async (req, res) => {
-  const monthsCount = req.query.months ?? 6
+  const monthsCount = req.validatedQuery.months ?? 6
   const currentMonthStart = startOfMonth(new Date())
 
   const months = []
@@ -75,14 +75,14 @@ const incomeVsExpense = asyncHandler(async (req, res) => {
 })
 
 const dailySummary = asyncHandler(async (req, res) => {
-  const monthStart = startOfMonth(req.query.month ?? new Date())
+  const monthStart = startOfMonth(req.validatedQuery.month ?? new Date())
   const monthEnd = endOfMonth(monthStart)
 
   const transactions = await prisma.transaction.findMany({
     where: {
       userId: req.user.id,
       date: { gte: monthStart, lte: monthEnd },
-      ...(req.query.categoryId && { categoryId: req.query.categoryId }),
+      ...(req.validatedQuery.categoryId && { categoryId: req.validatedQuery.categoryId }),
     },
     select: { date: true, amount: true, type: true },
   })
@@ -100,14 +100,14 @@ const dailySummary = asyncHandler(async (req, res) => {
 })
 
 const weeklySummary = asyncHandler(async (req, res) => {
-  const monthStart = startOfMonth(req.query.month ?? new Date())
+  const monthStart = startOfMonth(req.validatedQuery.month ?? new Date())
   const monthEnd = endOfMonth(monthStart)
 
   const transactions = await prisma.transaction.findMany({
     where: {
       userId: req.user.id,
       date: { gte: monthStart, lte: monthEnd },
-      ...(req.query.categoryId && { categoryId: req.query.categoryId }),
+      ...(req.validatedQuery.categoryId && { categoryId: req.validatedQuery.categoryId }),
     },
     select: { date: true, amount: true, type: true },
   })
