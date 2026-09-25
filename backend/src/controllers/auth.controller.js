@@ -4,6 +4,7 @@ const { hashPassword, comparePassword } = require('../utils/hash')
 const { signToken } = require('../utils/jwt')
 const { hashResetToken } = require('../utils/resetToken')
 const { initiatePasswordReset } = require('../services/passwordReset.service')
+const { generateDueRecurringTransactions } = require('../services/recurring.service')
 
 function toPublicUser(user) {
   return {
@@ -50,6 +51,8 @@ const login = asyncHandler(async (req, res) => {
   if (!passwordMatches) {
     return res.status(401).json({ message: 'Invalid email or password' })
   }
+
+  await generateDueRecurringTransactions(user.id)
 
   const token = signToken({ id: user.id, role: user.role })
   res.json({ token, user: toPublicUser(user) })
@@ -116,6 +119,9 @@ const getMe = asyncHandler(async (req, res) => {
   const user = await prisma.user.findUnique({ where: { id: req.user.id } })
   if (!user) {
     return res.status(404).json({ message: 'User not found' })
+  }
+  if (user.role === 'STUDENT') {
+    await generateDueRecurringTransactions(user.id)
   }
   res.json({ user: toPublicUser(user) })
 })
