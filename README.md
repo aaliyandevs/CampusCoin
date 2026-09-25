@@ -82,7 +82,7 @@ Production target: frontend on **Vercel**, backend on **Render**, database on **
    - `DATABASE_URL` — from Aiven, as built above
    - `JWT_SECRET` — a long random string
    - `CLIENT_URL` — the Vercel URL from step 3 (leave a placeholder for now, update after the first Vercel deploy)
-   - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` — optional, for real password-reset email delivery (see `backend/.env.example`). Without these, reset emails fall back to a disposable Ethereal test inbox that never reaches a real address — the reset link only shows up in the Render logs.
+   - Optional, for real password-reset email delivery (see `backend/.env.example` for the full list and setup notes): either `EMAILJS_SERVICE_ID` / `EMAILJS_TEMPLATE_ID` / `EMAILJS_PUBLIC_KEY` / `EMAILJS_PRIVATE_KEY` (EmailJS), or `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` (plain SMTP). Without either, reset emails fall back to a disposable Ethereal test inbox that never reaches a real address — the reset link only shows up in the Render logs.
 3. Deploy. `prisma migrate deploy` runs the committed migrations against the Aiven database automatically on each build.
 
 ### 3. Vercel — frontend

@@ -19,6 +19,7 @@ async function initiatePasswordReset(user) {
   await sendMail({
     to: user.email,
     subject: 'Reset your Campus Coin password',
+    resetUrl,
     html: `<p>Click the link below to reset your password. This link expires in 1 hour.</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
   })
 }
