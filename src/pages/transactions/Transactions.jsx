@@ -13,6 +13,7 @@ import * as transactionsApi from '../../api/transactions.api'
 import * as categoriesApi from '../../api/categories.api'
 import { useCurrency } from '../../context/CurrencyContext'
 import { checkAndNotifyBudget } from '../../utils/budgetAlerts'
+import { notifyFlags } from '../../utils/transactionFlags'
 
 const emptyFilters = { startDate: '', endDate: '', categoryId: '', type: '' }
 
@@ -51,7 +52,8 @@ function Transactions() {
           description: data.description,
         })
       } else {
-        await transactionsApi.createTransaction(data)
+        const { flags } = await transactionsApi.createTransaction(data)
+        notifyFlags(flags)
       }
       setFormOpen(false)
       setEditingTransaction(null)
