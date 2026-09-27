@@ -3,7 +3,7 @@ import client from './client'
 export const listUsers = () => client.get('/admin/users').then((r) => r.data.users)
 export const toggleDisableUser = (id) =>
   client.patch(`/admin/users/${id}/disable`).then((r) => r.data.user)
-export const resetUserPassword = (id) => client.post(`/admin/users/${id}/reset-password`)
+export const resetUserData = (id) => client.post(`/admin/users/${id}/reset-data`)
 export const getAdminStats = () => client.get('/admin/stats').then((r) => r.data)
 
 export const listDefaultCategories = () =>

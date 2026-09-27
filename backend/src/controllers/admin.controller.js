@@ -1,6 +1,5 @@
 const prisma = require('../config/prisma')
 const asyncHandler = require('../utils/asyncHandler')
-const { initiatePasswordReset } = require('../services/passwordReset.service')
 
 const listUsers = asyncHandler(async (req, res) => {
   const users = await prisma.user.findMany({
@@ -34,7 +33,7 @@ const toggleDisableUser = asyncHandler(async (req, res) => {
   res.json({ user: { id: updated.id, isDisabled: updated.isDisabled } })
 })
 
-const resetUserPassword = asyncHandler(async (req, res) => {
+const resetUserData = asyncHandler(async (req, res) => {
   const userId = Number(req.params.id)
 
   const user = await prisma.user.findUnique({ where: { id: userId } })
@@ -42,8 +41,18 @@ const resetUserPassword = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'User not found' })
   }
 
-  await initiatePasswordReset(user)
-  res.json({ message: 'A password reset link has been sent to the user' })
+  // Transactions and budgets reference categories, so they must go first or
+  // the category deleteMany below would hit a foreign-key constraint.
+  await prisma.$transaction([
+    prisma.transaction.deleteMany({ where: { userId } }),
+    prisma.budget.deleteMany({ where: { userId } }),
+    prisma.savingTip.deleteMany({ where: { userId } }),
+    prisma.insight.deleteMany({ where: { userId } }),
+    prisma.passwordResetToken.deleteMany({ where: { userId } }),
+    prisma.category.deleteMany({ where: { userId } }),
+  ])
+
+  res.json({ message: 'All records for this user have been reset' })
 })
 
 const stats = asyncHandler(async (req, res) => {
@@ -72,4 +81,4 @@ const stats = asyncHandler(async (req, res) => {
   res.json({ activeUsers, totalTransactions, mostUsedCategories })
 })
 
-module.exports = { listUsers, toggleDisableUser, resetUserPassword, stats }
+module.exports = { listUsers, toggleDisableUser, resetUserData, stats }

@@ -12,7 +12,7 @@ router.use(requireAuth, requireAdmin)
 
 router.get('/users', adminController.listUsers)
 router.patch('/users/:id/disable', validateIdParam(), adminController.toggleDisableUser)
-router.post('/users/:id/reset-password', validateIdParam(), adminController.resetUserPassword)
+router.post('/users/:id/reset-data', validateIdParam(), adminController.resetUserData)
 
 router.get('/stats', adminController.stats)
 

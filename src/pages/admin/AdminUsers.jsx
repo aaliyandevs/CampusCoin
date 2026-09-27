@@ -4,10 +4,12 @@ import Card from '../../components/common/Card'
 import Badge from '../../components/common/Badge'
 import Button from '../../components/common/Button'
 import Spinner from '../../components/common/Spinner'
+import ConfirmDialog from '../../components/common/ConfirmDialog'
 import * as adminApi from '../../api/admin.api'
 
 function AdminUsers() {
   const [users, setUsers] = useState(null)
+  const [resettingUser, setResettingUser] = useState(null)
 
   const load = () => adminApi.listUsers().then(setUsers)
 
@@ -25,11 +27,14 @@ function AdminUsers() {
     }
   }
 
-  const handleResetPassword = async (user) => {
+  const handleResetData = async () => {
     try {
-      await adminApi.resetUserPassword(user.id)
-      toast.success(`Reset link sent to ${user.email}`)
+      await adminApi.resetUserData(resettingUser.id)
+      setResettingUser(null)
+      load()
+      toast.success(`All records for ${resettingUser.name} have been reset`)
     } catch (err) {
+      setResettingUser(null)
       toast.error(err.response?.data?.message ?? 'Something went wrong')
     }
   }
@@ -70,12 +75,12 @@ function AdminUsers() {
               </p>
               <div className="flex gap-2">
                 <Button
-                  variant="secondary"
+                  variant="danger"
                   size="sm"
-                  onClick={() => handleResetPassword(u)}
+                  onClick={() => setResettingUser(u)}
                   className="flex-1"
                 >
-                  Reset password
+                  Reset
                 </Button>
                 <Button
                   variant={u.isDisabled ? 'secondary' : 'danger'}
@@ -122,8 +127,8 @@ function AdminUsers() {
                   </td>
                   <td className="whitespace-nowrap px-4 py-3">
                     <div className="flex justify-end gap-2">
-                      <Button variant="secondary" size="sm" onClick={() => handleResetPassword(u)}>
-                        Reset password
+                      <Button variant="danger" size="sm" onClick={() => setResettingUser(u)}>
+                        Reset
                       </Button>
                       <Button
                         variant={u.isDisabled ? 'secondary' : 'danger'}
@@ -145,6 +150,15 @@ function AdminUsers() {
           )}
         </div>
       </Card>
+
+      <ConfirmDialog
+        open={Boolean(resettingUser)}
+        title="Reset all records"
+        message={`This permanently deletes all of ${resettingUser?.name}'s transactions, budgets, custom categories, and saving tips. Their account and login stay intact. This can't be undone.`}
+        confirmLabel="Reset records"
+        onConfirm={handleResetData}
+        onCancel={() => setResettingUser(null)}
+      />
     </div>
   )
 }
