@@ -1,10 +1,11 @@
 import { Pin, PinOff, X, TrendingUp, AlertTriangle } from 'lucide-react'
-import { formatCurrency } from '../../utils/format'
+import { useCurrency } from '../../context/CurrencyContext'
 import { cn } from '../../utils/cn'
 
 const kindIcon = { AVERAGE_SPIKE: TrendingUp, BUDGET_EXCEEDED: AlertTriangle }
 
 function SavingTipCard({ tip, onPin, onDismiss }) {
+  const { format } = useCurrency()
   const Icon = kindIcon[tip.kind] ?? TrendingUp
 
   return (
@@ -15,7 +16,7 @@ function SavingTipCard({ tip, onPin, onDismiss }) {
       <div className="flex-1">
         <p className="text-sm text-stone-700 dark:text-stone-300">{tip.tipText}</p>
         <p className="mt-1 text-xs font-medium text-brand-600 dark:text-brand-400">
-          Potential savings: {formatCurrency(tip.impactScore)}
+          Potential savings: {format(tip.impactScore)}
         </p>
       </div>
       <div className="flex shrink-0 gap-1">

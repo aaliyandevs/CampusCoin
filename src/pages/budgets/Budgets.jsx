@@ -8,7 +8,7 @@ import Spinner from '../../components/common/Spinner'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import BudgetFormModal from './BudgetFormModal'
 import * as budgetsApi from '../../api/budgets.api'
-import { formatCurrency } from '../../utils/format'
+import { useCurrency } from '../../context/CurrencyContext'
 import { cn } from '../../utils/cn'
 
 const statusTone = { OK: 'brand', NEAR: 'warning', OVER: 'danger' }
@@ -20,6 +20,7 @@ function currentMonth() {
 }
 
 function Budgets() {
+  const { format } = useCurrency()
   const [budgets, setBudgets] = useState(null)
   const [formOpen, setFormOpen] = useState(false)
   const [deletingBudget, setDeletingBudget] = useState(null)
@@ -85,7 +86,7 @@ function Budgets() {
                     {b.category.name}
                   </p>
                   <p className="text-sm text-stone-500 dark:text-stone-400">
-                    {formatCurrency(b.spent)} of {formatCurrency(b.limitAmount)}
+                    {format(b.spent)} of {format(b.limitAmount)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

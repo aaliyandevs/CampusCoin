@@ -18,6 +18,7 @@ import Select from '../../components/common/Select'
 import Input from '../../components/common/Input'
 import Spinner from '../../components/common/Spinner'
 import { useTheme } from '../../context/ThemeContext'
+import { useCurrency } from '../../context/CurrencyContext'
 import * as reportsApi from '../../api/reports.api'
 import * as categoriesApi from '../../api/categories.api'
 import { formatCurrency } from '../../utils/format'
@@ -44,6 +45,7 @@ function ChartTooltip({ active, payload, label }) {
 
 function Reports() {
   const { theme } = useTheme()
+  const { format } = useCurrency()
   const colors = getChartColors(theme)
   const reportRef = useRef(null)
 
@@ -191,7 +193,7 @@ function Reports() {
               <ResponsiveContainer width="100%" height={Math.max(expenseByCategory.length * 40, 120)}>
                 <BarChart data={expenseByCategory} layout="vertical" margin={{ left: 12 }}>
                   <CartesianGrid horizontal={false} stroke={colors.grid} />
-                  <XAxis type="number" tickFormatter={formatCurrency} tick={{ fontSize: 12 }} />
+                  <XAxis type="number" tickFormatter={format} tick={{ fontSize: 12 }} />
                   <YAxis
                     type="category"
                     dataKey="categoryName"
@@ -207,7 +209,7 @@ function Reports() {
                   <li key={c.categoryId} className="flex justify-between py-2 text-sm">
                     <span className="text-stone-600 dark:text-stone-300">{c.categoryName}</span>
                     <span className="font-medium text-stone-900 dark:text-stone-100">
-                      {formatCurrency(c.total)}
+                      {format(c.total)}
                     </span>
                   </li>
                 ))}
@@ -229,7 +231,7 @@ function Reports() {
               <BarChart data={trend}>
                 <CartesianGrid vertical={false} stroke={colors.grid} />
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 12 }} />
+                <YAxis tickFormatter={format} tick={{ fontSize: 12 }} />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend />
                 <Bar dataKey="income" name="Income" fill={colors.income} radius={[4, 4, 0, 0]} />
@@ -271,7 +273,7 @@ function Reports() {
               <BarChart data={periodData}>
                 <CartesianGrid vertical={false} stroke={colors.grid} />
                 <XAxis dataKey={period === 'daily' ? 'date' : 'label'} tick={{ fontSize: 12 }} />
-                <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 12 }} />
+                <YAxis tickFormatter={format} tick={{ fontSize: 12 }} />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend />
                 <Bar dataKey="income" name="Income" fill={colors.income} radius={[4, 4, 0, 0]} />

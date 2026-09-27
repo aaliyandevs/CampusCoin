@@ -11,12 +11,13 @@ import TransactionFormModal from './TransactionFormModal'
 import CsvImportModal from './CsvImportModal'
 import * as transactionsApi from '../../api/transactions.api'
 import * as categoriesApi from '../../api/categories.api'
-import { formatCurrency } from '../../utils/format'
+import { useCurrency } from '../../context/CurrencyContext'
 import { checkAndNotifyBudget } from '../../utils/budgetAlerts'
 
 const emptyFilters = { startDate: '', endDate: '', categoryId: '', type: '' }
 
 function Transactions() {
+  const { format } = useCurrency()
   const [transactions, setTransactions] = useState(null)
   const [categories, setCategories] = useState([])
   const [filters, setFilters] = useState(emptyFilters)
@@ -177,7 +178,7 @@ function Transactions() {
                     }`}
                   >
                     {t.type === 'INCOME' ? '+' : '-'}
-                    {formatCurrency(t.amount)}
+                    {format(t.amount)}
                   </span>
                   <button
                     onClick={() => {
@@ -243,7 +244,7 @@ function Transactions() {
                       }`}
                     >
                       {t.type === 'INCOME' ? '+' : '-'}
-                      {formatCurrency(t.amount)}
+                      {format(t.amount)}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3">
                       <div className="flex justify-end gap-1">

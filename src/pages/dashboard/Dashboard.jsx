@@ -9,11 +9,11 @@ import Spinner from '../../components/common/Spinner'
 import TransactionFormModal from '../transactions/TransactionFormModal'
 import SavingTipCard from './SavingTipCard'
 import { useAuth } from '../../context/AuthContext'
+import { useCurrency } from '../../context/CurrencyContext'
 import * as reportsApi from '../../api/reports.api'
 import * as budgetsApi from '../../api/budgets.api'
 import * as tipsApi from '../../api/tips.api'
 import * as transactionsApi from '../../api/transactions.api'
-import { formatCurrency } from '../../utils/format'
 import { cn } from '../../utils/cn'
 import { checkAndNotifyBudget } from '../../utils/budgetAlerts'
 
@@ -27,6 +27,7 @@ function currentMonth() {
 
 function Dashboard() {
   const { user } = useAuth()
+  const { format } = useCurrency()
   const firstName = user?.name?.split(' ')[0]
   const month = currentMonth()
 
@@ -111,7 +112,7 @@ function Dashboard() {
             <div>
               <p className="text-sm text-stone-500 dark:text-stone-400">Income</p>
               <p className="text-xl font-semibold text-stone-900 dark:text-stone-100">
-                {formatCurrency(summary.totalIncome)}
+                {format(summary.totalIncome)}
               </p>
             </div>
           </Card>
@@ -122,7 +123,7 @@ function Dashboard() {
             <div>
               <p className="text-sm text-stone-500 dark:text-stone-400">Expenses</p>
               <p className="text-xl font-semibold text-stone-900 dark:text-stone-100">
-                {formatCurrency(summary.totalExpense)}
+                {format(summary.totalExpense)}
               </p>
             </div>
           </Card>
@@ -140,7 +141,7 @@ function Dashboard() {
                     : 'text-rose-600 dark:text-rose-400',
                 )}
               >
-                {formatCurrency(netBalance)}
+                {format(netBalance)}
               </p>
             </div>
           </Card>
@@ -188,7 +189,7 @@ function Dashboard() {
                   {topCategory.categoryName}
                 </p>
                 <p className="text-sm text-stone-500 dark:text-stone-400">
-                  {formatCurrency(topCategory.total)} spent
+                  {format(topCategory.total)} spent
                 </p>
               </div>
             ) : (
