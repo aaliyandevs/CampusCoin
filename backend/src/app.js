@@ -13,7 +13,8 @@ const adminRoutes = require('./routes/admin.routes')
 
 const app = express()
 
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }))
+const allowedOrigins = (process.env.CLIENT_URL || '').split(',').map((o) => o.trim())
+app.use(cors({ origin: allowedOrigins, credentials: true }))
 app.use(express.json())
 app.use(morgan('dev'))
 

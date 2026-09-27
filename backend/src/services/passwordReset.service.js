@@ -15,7 +15,8 @@ async function initiatePasswordReset(user) {
     },
   })
 
-  const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${rawToken}`
+  const clientUrl = process.env.CLIENT_URL.split(',')[0].trim()
+  const resetUrl = `${clientUrl}/reset-password?token=${rawToken}`
   try {
     await sendMail({
       to: user.email,
