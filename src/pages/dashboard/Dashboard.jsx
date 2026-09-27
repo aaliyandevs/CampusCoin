@@ -1,6 +1,23 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Minus, Wallet, TrendingUp, TrendingDown, Lightbulb } from 'lucide-react'
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  Tooltip,
+  CartesianGrid,
+} from 'recharts'
+import {
+  Plus,
+  Minus,
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  Lightbulb,
+  ArrowUpRight,
+  ArrowDownRight,
+} from 'lucide-react'
 import toast from 'react-hot-toast'
 import Card from '../../components/common/Card'
 import Button from '../../components/common/Button'
@@ -10,11 +27,13 @@ import TransactionFormModal from '../transactions/TransactionFormModal'
 import SavingTipCard from './SavingTipCard'
 import { useAuth } from '../../context/AuthContext'
 import { useCurrency } from '../../context/CurrencyContext'
+import { useTheme } from '../../context/ThemeContext'
 import * as reportsApi from '../../api/reports.api'
 import * as budgetsApi from '../../api/budgets.api'
 import * as tipsApi from '../../api/tips.api'
 import * as transactionsApi from '../../api/transactions.api'
 import { cn } from '../../utils/cn'
+import { getChartColors } from '../../utils/chartColors'
 import { checkAndNotifyBudget } from '../../utils/budgetAlerts'
 
 const statusTone = { OK: 'brand', NEAR: 'warning', OVER: 'danger' }
@@ -25,25 +44,73 @@ function currentMonth() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
 }
 
+function greetingWord() {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
+function DeltaBadge({ value, goodDirection = 'up' }) {
+  if (value === null || value === undefined || !Number.isFinite(value)) return null
+  const rounded = Math.round(value)
+  if (rounded === 0) return null
+  const isUp = value > 0
+  const isGood = goodDirection === 'up' ? isUp : !isUp
+  const Icon = isUp ? ArrowUpRight : ArrowDownRight
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-semibold',
+        isGood
+          ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300'
+          : 'bg-rose-50 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+      )}
+    >
+      <Icon className="h-3 w-3" />
+      {Math.abs(rounded)}%
+    </span>
+  )
+}
+
+function TrendTooltip({ active, payload, label, format }) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm shadow-md dark:border-stone-700 dark:bg-stone-900">
+      <p className="mb-1 font-medium text-stone-900 dark:text-stone-100">{label}</p>
+      {payload.map((p) => (
+        <p key={p.dataKey} style={{ color: p.color }}>
+          {p.name}: {format(p.value)}
+        </p>
+      ))}
+    </div>
+  )
+}
+
 function Dashboard() {
   const { user } = useAuth()
   const { format } = useCurrency()
+  const { theme } = useTheme()
+  const colors = getChartColors(theme)
   const firstName = user?.name?.split(' ')[0]
   const month = currentMonth()
 
   const [summary, setSummary] = useState(null)
   const [budgets, setBudgets] = useState(null)
   const [tips, setTips] = useState(null)
+  const [trend, setTrend] = useState(null)
   const [quickAddType, setQuickAddType] = useState(null)
 
   const loadSummary = () => reportsApi.getCategorySummary({ month }).then(setSummary)
   const loadBudgets = () => budgetsApi.listBudgets({ month }).then(setBudgets)
   const loadTips = () => tipsApi.listTips({ limit: 5 }).then(setTips)
+  const loadTrend = () => reportsApi.getIncomeVsExpense({ months: 6 }).then(setTrend)
 
   useEffect(() => {
     loadSummary()
     loadBudgets()
     loadTips()
+    loadTrend()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -53,6 +120,7 @@ function Dashboard() {
       setQuickAddType(null)
       loadSummary()
       loadBudgets()
+      loadTrend()
       toast.success('Transaction added')
       checkAndNotifyBudget(Number(data.categoryId), data.type)
     } catch (err) {
@@ -76,12 +144,24 @@ function Dashboard() {
 
   const netBalance = summary ? summary.totalIncome - summary.totalExpense : 0
 
+  const previousMonth = trend && trend.length >= 2 ? trend[trend.length - 2] : null
+  const deltaOf = (current, previousValue) => {
+    if (!previousValue) return null
+    return ((current - previousValue) / previousValue) * 100
+  }
+  const incomeDelta = summary && previousMonth ? deltaOf(summary.totalIncome, previousMonth.income) : null
+  const expenseDelta = summary && previousMonth ? deltaOf(summary.totalExpense, previousMonth.expense) : null
+  const balanceDelta =
+    summary && previousMonth
+      ? deltaOf(netBalance, previousMonth.income - previousMonth.expense)
+      : null
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="animate-fade-up flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-stone-900 dark:text-stone-100">
-            Welcome back, {firstName}
+            {greetingWord()}, {firstName}
           </h1>
           <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
             Here's how this month is looking.
@@ -104,38 +184,47 @@ function Dashboard() {
           <Spinner className="h-6 w-6 text-stone-400" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="animate-fade-up grid grid-cols-1 gap-4 [animation-delay:60ms] sm:grid-cols-3">
           <Card className="flex items-center gap-4">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300">
               <TrendingUp className="h-5 w-5" />
             </span>
-            <div>
-              <p className="text-sm text-stone-500 dark:text-stone-400">Income</p>
-              <p className="text-xl font-semibold text-stone-900 dark:text-stone-100">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-stone-500 dark:text-stone-400">Income</p>
+                <DeltaBadge value={incomeDelta} goodDirection="up" />
+              </div>
+              <p className="truncate text-xl font-semibold text-stone-900 dark:text-stone-100">
                 {format(summary.totalIncome)}
               </p>
             </div>
           </Card>
           <Card className="flex items-center gap-4">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
               <TrendingDown className="h-5 w-5" />
             </span>
-            <div>
-              <p className="text-sm text-stone-500 dark:text-stone-400">Expenses</p>
-              <p className="text-xl font-semibold text-stone-900 dark:text-stone-100">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-stone-500 dark:text-stone-400">Expenses</p>
+                <DeltaBadge value={expenseDelta} goodDirection="down" />
+              </div>
+              <p className="truncate text-xl font-semibold text-stone-900 dark:text-stone-100">
                 {format(summary.totalExpense)}
               </p>
             </div>
           </Card>
           <Card className="flex items-center gap-4">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300">
               <Wallet className="h-5 w-5" />
             </span>
-            <div>
-              <p className="text-sm text-stone-500 dark:text-stone-400">Balance</p>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-stone-500 dark:text-stone-400">Balance</p>
+                <DeltaBadge value={balanceDelta} goodDirection="up" />
+              </div>
               <p
                 className={cn(
-                  'text-xl font-semibold',
+                  'truncate text-xl font-semibold',
                   netBalance >= 0
                     ? 'text-stone-900 dark:text-stone-100'
                     : 'text-rose-600 dark:text-rose-400',
@@ -148,33 +237,35 @@ function Dashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="animate-fade-up grid grid-cols-1 gap-4 [animation-delay:120ms] lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <div className="mb-3 flex items-center gap-2">
-            <Lightbulb className="h-4 w-4 text-amber-500" />
+          <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
-              Saving tips
+              Income vs expense
             </h2>
+            <Link to="/reports" className="text-xs font-medium text-brand-600 hover:text-brand-700">
+              Full report
+            </Link>
           </div>
-          {!tips ? (
-            <div className="flex justify-center py-8">
+          {!trend ? (
+            <div className="flex justify-center py-16">
               <Spinner className="h-5 w-5 text-stone-400" />
             </div>
-          ) : tips.length === 0 ? (
-            <p className="text-sm text-stone-500 dark:text-stone-400">
-              No tips yet — keep logging transactions and we'll spot patterns as they emerge.
-            </p>
           ) : (
-            <div className="flex flex-col gap-2">
-              {tips.map((tip) => (
-                <SavingTipCard
-                  key={tip.id}
-                  tip={tip}
-                  onPin={handlePinTip}
-                  onDismiss={handleDismissTip}
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={trend}>
+                <CartesianGrid vertical={false} stroke={colors.grid} />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
                 />
-              ))}
-            </div>
+                <Tooltip content={<TrendTooltip format={format} />} />
+                <Bar dataKey="income" name="Income" fill={colors.income} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="expense" name="Expense" fill={colors.expense} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           )}
         </Card>
 
@@ -225,9 +316,12 @@ function Dashboard() {
                       </span>
                       <Badge tone={statusTone[b.status]}>{b.percentUsed}%</Badge>
                     </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
+                    <div className="h-2 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
                       <div
-                        className={cn('h-full rounded-full', barColor[b.status])}
+                        className={cn(
+                          'h-full rounded-full transition-all duration-500',
+                          barColor[b.status],
+                        )}
                         style={{ width: `${Math.min(b.percentUsed, 100)}%` }}
                       />
                     </div>
@@ -238,6 +332,35 @@ function Dashboard() {
           </Card>
         </div>
       </div>
+
+      <Card className="animate-fade-up [animation-delay:180ms]">
+        <div className="mb-3 flex items-center gap-2">
+          <Lightbulb className="h-4 w-4 text-amber-500" />
+          <h2 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+            Saving tips
+          </h2>
+        </div>
+        {!tips ? (
+          <div className="flex justify-center py-8">
+            <Spinner className="h-5 w-5 text-stone-400" />
+          </div>
+        ) : tips.length === 0 ? (
+          <p className="text-sm text-stone-500 dark:text-stone-400">
+            No tips yet — keep logging transactions and we'll spot patterns as they emerge.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
+            {tips.map((tip) => (
+              <SavingTipCard
+                key={tip.id}
+                tip={tip}
+                onPin={handlePinTip}
+                onDismiss={handleDismissTip}
+              />
+            ))}
+          </div>
+        )}
+      </Card>
 
       <TransactionFormModal
         open={Boolean(quickAddType)}
