@@ -2,6 +2,7 @@ const { Router } = require('express')
 const controller = require('../controllers/auth.controller')
 const validate = require('../middleware/validate.middleware')
 const { requireAuth } = require('../middleware/auth.middleware')
+const { authLimiter } = require('../middleware/rateLimit.middleware')
 const {
   registerSchema,
   loginSchema,
@@ -12,11 +13,11 @@ const {
 
 const router = Router()
 
-router.post('/register', validate(registerSchema), controller.register)
-router.post('/login', validate(loginSchema), controller.login)
-router.post('/admin-login', validate(loginSchema), controller.adminLogin)
-router.post('/forgot-password', validate(forgotPasswordSchema), controller.forgotPassword)
-router.post('/reset-password', validate(resetPasswordSchema), controller.resetPassword)
+router.post('/register', authLimiter, validate(registerSchema), controller.register)
+router.post('/login', authLimiter, validate(loginSchema), controller.login)
+router.post('/admin-login', authLimiter, validate(loginSchema), controller.adminLogin)
+router.post('/forgot-password', authLimiter, validate(forgotPasswordSchema), controller.forgotPassword)
+router.post('/reset-password', authLimiter, validate(resetPasswordSchema), controller.resetPassword)
 router.get('/me', requireAuth, controller.getMe)
 router.patch('/profile', requireAuth, validate(updateProfileSchema), controller.updateProfile)
 

@@ -7,6 +7,13 @@ const RESET_TOKEN_TTL_MS = 60 * 60 * 1000
 async function initiatePasswordReset(user) {
   const { rawToken, tokenHash } = generateResetToken()
 
+  // A previously emailed link should stop working once a newer one is
+  // requested, so a leaked or stale old link can't still be used.
+  await prisma.passwordResetToken.updateMany({
+    where: { userId: user.id, usedAt: null },
+    data: { usedAt: new Date() },
+  })
+
   await prisma.passwordResetToken.create({
     data: {
       userId: user.id,

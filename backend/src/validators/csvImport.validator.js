@@ -7,7 +7,7 @@ const csvRowSchema = z.object({
     z.enum(['INCOME', 'EXPENSE']),
   ),
   category: z.string().trim().min(1).max(100),
-  amount: z.coerce.number().positive(),
+  amount: z.coerce.number().positive().max(10_000_000),
   description: z.string().trim().max(255).optional(),
 })
 

@@ -26,5 +26,16 @@ function validateQuery(schema) {
   }
 }
 
+function validateIdParam(paramName = 'id') {
+  return (req, res, next) => {
+    const value = Number(req.params[paramName])
+    if (!Number.isInteger(value) || value <= 0) {
+      return res.status(400).json({ message: `Invalid ${paramName}` })
+    }
+    next()
+  }
+}
+
 module.exports = validate
 module.exports.validateQuery = validateQuery
+module.exports.validateIdParam = validateIdParam

@@ -1,8 +1,10 @@
 const { z } = require('zod')
 
+const MAX_AMOUNT = 10_000_000
+
 const baseFields = {
   categoryId: z.number().int().positive(),
-  amount: z.number().positive(),
+  amount: z.number().positive().max(MAX_AMOUNT),
   type: z.enum(['INCOME', 'EXPENSE']),
   description: z.string().trim().max(255).optional(),
   date: z.coerce.date(),
@@ -19,7 +21,7 @@ const createTransactionSchema = z
 
 const updateTransactionSchema = z.object({
   categoryId: z.number().int().positive().optional(),
-  amount: z.number().positive().optional(),
+  amount: z.number().positive().max(MAX_AMOUNT).optional(),
   type: z.enum(['INCOME', 'EXPENSE']).optional(),
   description: z.string().trim().max(255).optional(),
   date: z.coerce.date().optional(),
