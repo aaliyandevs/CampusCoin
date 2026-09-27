@@ -55,7 +55,6 @@ function ForgotPassword() {
             id="email"
             type="email"
             label="Email"
-            placeholder="you@university.edu"
             error={errors.email?.message}
             {...register('email')}
           />

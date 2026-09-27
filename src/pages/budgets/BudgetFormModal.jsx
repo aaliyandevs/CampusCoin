@@ -10,7 +10,7 @@ import * as categoriesApi from '../../api/categories.api'
 
 const schema = z.object({
   categoryId: z.coerce.number().int().positive('Choose a category'),
-  limitAmount: z.coerce.number().positive('Enter an amount'),
+  limitAmount: z.coerce.number().positive('Enter an amount').max(10_000_000, 'Amount is too large'),
 })
 
 function BudgetFormModal({ open, onClose, onSubmit, month }) {

@@ -12,7 +12,7 @@ const schema = z
   .object({
     type: z.enum(['INCOME', 'EXPENSE']),
     categoryId: z.coerce.number().int().positive('Choose a category'),
-    amount: z.coerce.number().positive('Enter an amount'),
+    amount: z.coerce.number().positive('Enter an amount').max(10_000_000, 'Amount is too large'),
     date: z.string().min(1, 'Date is required'),
     description: z.string().trim().max(255).optional(),
     isRecurringTemplate: z.boolean().optional(),

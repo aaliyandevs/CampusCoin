@@ -21,8 +21,18 @@ const fontSizeOptions = [
 const schema = z.object({
   name: z.string().trim().min(2, 'Enter your name'),
   academicYear: z.string().trim().max(50).optional().or(z.literal('')),
-  monthlyAllowance: z.coerce.number().nonnegative().optional().or(z.literal('')),
-  monthlySavingsGoal: z.coerce.number().nonnegative().optional().or(z.literal('')),
+  monthlyAllowance: z.coerce
+    .number()
+    .nonnegative()
+    .max(10_000_000, 'Amount is too large')
+    .optional()
+    .or(z.literal('')),
+  monthlySavingsGoal: z.coerce
+    .number()
+    .nonnegative()
+    .max(10_000_000, 'Amount is too large')
+    .optional()
+    .or(z.literal('')),
 })
 
 function Profile() {

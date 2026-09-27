@@ -9,9 +9,19 @@ import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
 import * as authApi from '../../api/auth.api'
 
-const schema = z.object({
-  password: z.string().min(8, 'At least 8 characters'),
-})
+const schema = z
+  .object({
+    password: z
+      .string()
+      .min(8, 'At least 8 characters')
+      .regex(/[a-zA-Z]/, 'Must contain at least one letter')
+      .regex(/[0-9]/, 'Must contain at least one number'),
+    confirmPassword: z.string().min(1, 'Confirm your password'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
 
 function ResetPassword() {
   const [searchParams] = useSearchParams()
@@ -61,9 +71,15 @@ function ResetPassword() {
             id="password"
             type="password"
             label="New password"
-            placeholder="••••••••"
             error={errors.password?.message}
             {...register('password')}
+          />
+          <Input
+            id="confirmPassword"
+            type="password"
+            label="Confirm new password"
+            error={errors.confirmPassword?.message}
+            {...register('confirmPassword')}
           />
           <Button type="submit" disabled={isSubmitting} className="mt-2">
             {isSubmitting ? 'Resetting…' : 'Reset password'}

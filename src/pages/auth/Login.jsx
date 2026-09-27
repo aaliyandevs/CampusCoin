@@ -56,7 +56,6 @@ function Login() {
           id="email"
           type="email"
           label="Email"
-          placeholder="you@university.edu"
           error={errors.email?.message}
           {...register('email')}
         />
@@ -64,7 +63,6 @@ function Login() {
           id="password"
           type="password"
           label="Password"
-          placeholder="••••••••"
           error={errors.password?.message}
           {...register('password')}
         />

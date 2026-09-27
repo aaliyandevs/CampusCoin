@@ -9,11 +9,21 @@ import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
 import { useAuth } from '../../context/AuthContext'
 
-const schema = z.object({
-  name: z.string().trim().min(2, 'Enter your full name'),
-  email: z.string().trim().toLowerCase().email('Enter a valid email'),
-  password: z.string().min(8, 'At least 8 characters'),
-})
+const schema = z
+  .object({
+    name: z.string().trim().min(2, 'Enter your full name'),
+    email: z.string().trim().toLowerCase().email('Enter a valid email'),
+    password: z
+      .string()
+      .min(8, 'At least 8 characters')
+      .regex(/[a-zA-Z]/, 'Must contain at least one letter')
+      .regex(/[0-9]/, 'Must contain at least one number'),
+    confirmPassword: z.string().min(1, 'Confirm your password'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
 
 function Register() {
   const { register: registerUser } = useAuth()
@@ -26,10 +36,10 @@ function Register() {
     formState: { errors },
   } = useForm({ resolver: zodResolver(schema) })
 
-  const onSubmit = async (data) => {
+  const onSubmit = async ({ name, email, password }) => {
     setIsSubmitting(true)
     try {
-      await registerUser(data)
+      await registerUser({ name, email, password })
       navigate('/dashboard', { replace: true })
     } catch (err) {
       toast.error(err.response?.data?.message ?? 'Registration failed')
@@ -55,7 +65,6 @@ function Register() {
         <Input
           id="name"
           label="Full name"
-          placeholder="Alex Rivera"
           error={errors.name?.message}
           {...register('name')}
         />
@@ -63,7 +72,6 @@ function Register() {
           id="email"
           type="email"
           label="Email"
-          placeholder="you@university.edu"
           error={errors.email?.message}
           {...register('email')}
         />
@@ -71,9 +79,15 @@ function Register() {
           id="password"
           type="password"
           label="Password"
-          placeholder="••••••••"
           error={errors.password?.message}
           {...register('password')}
+        />
+        <Input
+          id="confirmPassword"
+          type="password"
+          label="Confirm password"
+          error={errors.confirmPassword?.message}
+          {...register('confirmPassword')}
         />
         <Button type="submit" disabled={isSubmitting} className="mt-2">
           {isSubmitting ? 'Creating account…' : 'Create account'}
