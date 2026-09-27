@@ -12,7 +12,7 @@ function AdminShell() {
   return (
     <div className="flex min-h-screen bg-stone-50 dark:bg-stone-950">
       <AdminSidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <div className="flex-1">
+      <div className="min-w-0 flex-1">
         <header className="flex h-14 items-center justify-between border-b border-stone-200 bg-white px-4 dark:border-stone-800 dark:bg-stone-900 sm:px-6">
           <div className="flex items-center gap-3">
             <button

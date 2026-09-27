@@ -90,11 +90,11 @@ function Reveal({ children, className, delay = 0 }) {
 
 function Logo() {
   return (
-    <Link to="/" className="flex items-center gap-2">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
+    <Link to="/" className="flex shrink-0 items-center gap-2">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-white">
         <PiggyBank className="h-5 w-5" />
       </span>
-      <span className="font-display text-base font-semibold text-stone-900 dark:text-stone-100">
+      <span className="whitespace-nowrap font-display text-sm font-semibold text-stone-900 dark:text-stone-100 sm:text-base">
         Campus Coin
       </span>
     </Link>
@@ -106,9 +106,9 @@ function Home() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-stone-50 dark:bg-stone-950">
-      <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-4 py-6 sm:px-6">
+      <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-6 sm:px-6">
         <Logo />
-        <nav className="flex items-center gap-3">
+        <nav className="flex shrink-0 items-center gap-1.5 sm:gap-3">
           {user ? (
             <Link to="/dashboard">
               <Button size="sm">Go to dashboard</Button>
@@ -117,12 +117,14 @@ function Home() {
             <>
               <Link
                 to="/login"
-                className="text-sm font-medium text-stone-600 transition-colors hover:text-brand-600 dark:text-stone-300 dark:hover:text-brand-400"
+                className="whitespace-nowrap px-1 text-sm font-medium text-stone-600 transition-colors hover:text-brand-600 dark:text-stone-300 dark:hover:text-brand-400"
               >
                 Log in
               </Link>
               <Link to="/register">
-                <Button size="sm">Create account</Button>
+                <Button size="sm" className="whitespace-nowrap px-2.5 sm:px-3">
+                  Create account
+                </Button>
               </Link>
             </>
           )}
