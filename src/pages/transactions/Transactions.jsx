@@ -96,7 +96,7 @@ function Transactions() {
       </div>
 
       <Card>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
           <Input
             type="date"
             label="From"
@@ -147,7 +147,67 @@ function Transactions() {
         </div>
       ) : (
         <Card className="p-0">
-          <div className="overflow-x-auto">
+          {/* Mobile: card list. Below sm, a dense multi-column table has no
+              room to breathe and forces horizontal scrolling to reach the
+              amount or actions - a stacked card per transaction reads far
+              better on a phone. */}
+          <div className="divide-y divide-stone-100 sm:hidden dark:divide-stone-800">
+            {transactions.map((t) => (
+              <div key={t.id} className="flex items-start justify-between gap-3 px-4 py-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="truncate text-sm font-medium text-stone-900 dark:text-stone-100">
+                      {t.category.name}
+                    </span>
+                    {t.isRecurringTemplate && (
+                      <Repeat className="h-3.5 w-3.5 shrink-0 text-stone-400" />
+                    )}
+                  </div>
+                  <p className="mt-0.5 truncate text-xs text-stone-500 dark:text-stone-400">
+                    {t.date.slice(0, 10)}
+                    {t.description ? ` · ${t.description}` : ''}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
+                  <span
+                    className={`text-sm font-semibold ${
+                      t.type === 'INCOME'
+                        ? 'text-brand-700 dark:text-brand-400'
+                        : 'text-stone-900 dark:text-stone-100'
+                    }`}
+                  >
+                    {t.type === 'INCOME' ? '+' : '-'}
+                    {formatCurrency(t.amount)}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setEditingTransaction(t)
+                      setFormOpen(true)
+                    }}
+                    aria-label="Edit transaction"
+                    className="rounded-md p-1.5 text-stone-400 hover:bg-stone-100 hover:text-stone-600 dark:hover:bg-stone-800"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setDeletingTransaction(t)}
+                    aria-label="Delete transaction"
+                    className="rounded-md p-1.5 text-stone-400 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-900/30"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {transactions.length === 0 && (
+              <p className="px-4 py-8 text-center text-sm text-stone-400 dark:text-stone-500">
+                No transactions yet.
+              </p>
+            )}
+          </div>
+
+          {/* sm and up: full table */}
+          <div className="hidden overflow-x-auto sm:block">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-stone-200 text-left text-stone-500 dark:border-stone-800 dark:text-stone-400">

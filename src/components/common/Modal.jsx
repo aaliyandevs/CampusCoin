@@ -17,8 +17,8 @@ function Modal({ open, onClose, title, children }) {
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-stone-900/40" onClick={onClose} />
-      <div className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-stone-900">
-        <div className="mb-4 flex items-center justify-between">
+      <div className="relative flex max-h-[90vh] w-full max-w-md flex-col rounded-xl bg-white shadow-xl dark:bg-stone-900">
+        <div className="flex shrink-0 items-center justify-between px-6 pt-6">
           <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">{title}</h2>
           <button
             onClick={onClose}
@@ -27,7 +27,7 @@ function Modal({ open, onClose, title, children }) {
             <X className="h-5 w-5" />
           </button>
         </div>
-        {children}
+        <div className="overflow-y-auto px-6 pb-6 pt-4">{children}</div>
       </div>
     </div>,
     document.body,

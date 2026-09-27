@@ -47,7 +47,56 @@ function AdminUsers() {
       <h1 className="text-2xl font-semibold text-stone-900 dark:text-stone-100">Users</h1>
 
       <Card className="p-0">
-        <div className="overflow-x-auto">
+        {/* Mobile: card list, same reasoning as the transactions table -
+            Name/Email/count/status plus two action buttons has no room to
+            fit on a phone, and the actions are exactly what an admin needs
+            to reach without scrolling sideways. */}
+        <div className="divide-y divide-stone-100 sm:hidden dark:divide-stone-800">
+          {users.map((u) => (
+            <div key={u.id} className="flex flex-col gap-2 px-4 py-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-stone-900 dark:text-stone-100">
+                    {u.name}
+                  </p>
+                  <p className="truncate text-xs text-stone-500 dark:text-stone-400">{u.email}</p>
+                </div>
+                <Badge tone={u.isDisabled ? 'danger' : 'brand'} className="shrink-0">
+                  {u.isDisabled ? 'Disabled' : 'Active'}
+                </Badge>
+              </div>
+              <p className="text-xs text-stone-400 dark:text-stone-500">
+                {u._count.transactions} transactions
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleResetPassword(u)}
+                  className="flex-1"
+                >
+                  Reset password
+                </Button>
+                <Button
+                  variant={u.isDisabled ? 'secondary' : 'danger'}
+                  size="sm"
+                  onClick={() => handleToggleDisable(u)}
+                  className="flex-1"
+                >
+                  {u.isDisabled ? 'Enable' : 'Disable'}
+                </Button>
+              </div>
+            </div>
+          ))}
+          {users.length === 0 && (
+            <p className="px-4 py-8 text-center text-sm text-stone-400 dark:text-stone-500">
+              No students registered yet.
+            </p>
+          )}
+        </div>
+
+        {/* sm and up: full table */}
+        <div className="hidden overflow-x-auto sm:block">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-stone-200 text-left text-stone-500 dark:border-stone-800 dark:text-stone-400">
