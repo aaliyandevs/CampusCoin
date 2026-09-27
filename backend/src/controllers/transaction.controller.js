@@ -3,6 +3,7 @@ const asyncHandler = require('../utils/asyncHandler')
 const { generateDueRecurringTransactions } = require('../services/recurring.service')
 const { addInterval } = require('../utils/date')
 const { importTransactionsFromCsv } = require('../services/csvImport.service')
+const { detectFlags } = require('../services/transactionFlags.service')
 
 async function assertCategoryUsable(categoryId, userId, type) {
   const category = await prisma.category.findUnique({ where: { id: categoryId } })
@@ -47,6 +48,8 @@ const create = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: error })
   }
 
+  const flags = await detectFlags(req.user.id, { categoryId, amount, type, date })
+
   const transaction = await prisma.transaction.create({
     data: {
       userId: req.user.id,
@@ -62,7 +65,7 @@ const create = asyncHandler(async (req, res) => {
     include: { category: true },
   })
 
-  res.status(201).json({ transaction })
+  res.status(201).json({ transaction, flags })
 })
 
 const update = asyncHandler(async (req, res) => {
