@@ -16,12 +16,19 @@ async function initiatePasswordReset(user) {
   })
 
   const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${rawToken}`
-  await sendMail({
-    to: user.email,
-    subject: 'Reset your Campus Coin password',
-    resetUrl,
-    html: `<p>Click the link below to reset your password. This link expires in 1 hour.</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
-  })
+  try {
+    await sendMail({
+      to: user.email,
+      subject: 'Reset your Campus Coin password',
+      resetUrl,
+      html: `<p>Click the link below to reset your password. This link expires in 1 hour.</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
+    })
+  } catch (err) {
+    // A delivery failure (invalid recipient, provider outage, etc.) must not
+    // surface to the caller - it would both 500 the request and leak whether
+    // the email exists based on error vs. success behavior.
+    console.error('Password reset email failed to send:', err.message)
+  }
 }
 
 module.exports = { initiatePasswordReset }
