@@ -5,6 +5,8 @@ import Register from '../pages/auth/Register'
 import ForgotPassword from '../pages/auth/ForgotPassword'
 import ResetPassword from '../pages/auth/ResetPassword'
 import AdminLogin from '../pages/admin/AdminLogin'
+import Terms from '../pages/legal/Terms'
+import Privacy from '../pages/legal/Privacy'
 import NotFound from '../pages/NotFound'
 import ProtectedRoute from './ProtectedRoute'
 import AdminRoute from './AdminRoute'
@@ -30,6 +32,8 @@ function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
