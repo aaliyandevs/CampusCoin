@@ -121,7 +121,7 @@ function Reveal({ children, className, delay = 0 }) {
 function Logo() {
   return (
     <Link to="/" className="flex shrink-0 items-center">
-      <img src={logoFull} alt="Campus Coin" className="h-7 w-auto sm:h-8" />
+      <img src={logoFull} alt="Campus Coin" className="h-8 w-auto sm:h-10" />
     </Link>
   )
 }
@@ -225,12 +225,7 @@ function Home() {
 
           <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2">
             <div className="text-center lg:text-left">
-              <div className="animate-fade-up mx-auto flex w-fit items-center gap-2 rounded-full border border-stone-200 bg-white/80 px-4 py-1.5 text-xs font-medium text-stone-600 shadow-sm backdrop-blur dark:border-stone-800 dark:bg-stone-900/80 dark:text-stone-300 lg:mx-0">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
-                Built for student budgets
-              </div>
-
-              <h1 className="animate-fade-up mt-6 font-display text-4xl font-bold tracking-tight text-stone-900 [animation-delay:80ms] dark:text-stone-100 sm:text-6xl">
+              <h1 className="animate-fade-up font-display text-4xl font-bold tracking-tight text-stone-900 dark:text-stone-100 sm:text-6xl">
                 Smart spending,{' '}
                 <span className="bg-gradient-to-r from-brand-600 to-brand-400 bg-clip-text text-transparent dark:from-brand-400 dark:to-brand-200">
                   student style.
@@ -365,18 +360,10 @@ function Home() {
       </main>
 
       <footer className="border-t border-stone-200 dark:border-stone-800">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-stone-500 dark:text-stone-400 sm:flex-row sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-center px-4 py-8 text-sm text-stone-500 dark:text-stone-400 sm:justify-start sm:px-6">
           <div className="flex items-center gap-2">
-            <img src={logoFull} alt="Campus Coin" className="h-5 w-auto" />
+            <img src={logoFull} alt="Campus Coin" className="h-7 w-auto" />
             <span>— smart spending, student style.</span>
-          </div>
-          <div className="flex items-center gap-5">
-            <Link to="/login" className="hover:text-brand-600 dark:hover:text-brand-400">
-              Log in
-            </Link>
-            <Link to="/register" className="hover:text-brand-600 dark:hover:text-brand-400">
-              Register
-            </Link>
           </div>
         </div>
       </footer>

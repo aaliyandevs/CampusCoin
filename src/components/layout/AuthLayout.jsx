@@ -7,7 +7,7 @@ function AuthLayout({ title, subtitle, children, footer }) {
     <div className="flex min-h-screen items-center justify-center bg-stone-50 px-4 dark:bg-stone-950">
       <div className="w-full max-w-sm">
         <Link to="/" className="mb-8 flex items-center justify-center">
-          <img src={logoFull} alt="Campus Coin" className="h-9 w-auto" />
+          <img src={logoFull} alt="Campus Coin" className="h-11 w-auto" />
         </Link>
 
         <Card>

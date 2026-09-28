@@ -41,7 +41,7 @@ function Sidebar({ open, onClose }) {
       >
         <div className="flex items-center justify-between gap-2 px-5 py-5">
           <div className="flex items-center gap-2">
-            <img src={logoFull} alt="Campus Coin" className="h-7 w-auto" />
+            <img src={logoFull} alt="Campus Coin" className="h-9 w-auto" />
           </div>
           <button
             onClick={onClose}
