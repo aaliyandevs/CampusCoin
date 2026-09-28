@@ -204,7 +204,7 @@ function Home() {
                 </Link>
                 <Link to="/register">
                   <Button size="sm" className="whitespace-nowrap px-2.5 sm:px-3">
-                    Create account
+                    Sign up
                   </Button>
                 </Link>
               </>
