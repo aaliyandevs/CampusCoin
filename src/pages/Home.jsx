@@ -18,6 +18,7 @@ import {
 import { useAuth } from '../context/AuthContext'
 import Button from '../components/common/Button'
 import { cn } from '../utils/cn'
+import logoFull from '../assets/logo-full.png'
 
 const features = [
   {
@@ -119,13 +120,8 @@ function Reveal({ children, className, delay = 0 }) {
 
 function Logo() {
   return (
-    <Link to="/" className="flex shrink-0 items-center gap-2">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-white">
-        <PiggyBank className="h-5 w-5" />
-      </span>
-      <span className="whitespace-nowrap font-display text-sm font-semibold text-stone-900 dark:text-stone-100 sm:text-base">
-        Campus Coin
-      </span>
+    <Link to="/" className="flex shrink-0 items-center">
+      <img src={logoFull} alt="Campus Coin" className="h-7 w-auto sm:h-8" />
     </Link>
   )
 }
@@ -371,10 +367,8 @@ function Home() {
       <footer className="border-t border-stone-200 dark:border-stone-800">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-stone-500 dark:text-stone-400 sm:flex-row sm:px-6">
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-brand-600 text-white">
-              <PiggyBank className="h-3.5 w-3.5" />
-            </span>
-            <span>Campus Coin — smart spending, student style.</span>
+            <img src={logoFull} alt="Campus Coin" className="h-5 w-auto" />
+            <span>— smart spending, student style.</span>
           </div>
           <div className="flex items-center gap-5">
             <Link to="/login" className="hover:text-brand-600 dark:hover:text-brand-400">

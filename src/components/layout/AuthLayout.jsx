@@ -1,18 +1,13 @@
 import { Link } from 'react-router-dom'
-import { PiggyBank } from 'lucide-react'
 import Card from '../common/Card'
+import logoFull from '../../assets/logo-full.png'
 
 function AuthLayout({ title, subtitle, children, footer }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-stone-50 px-4 dark:bg-stone-950">
       <div className="w-full max-w-sm">
-        <Link to="/" className="mb-8 flex items-center justify-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
-            <PiggyBank className="h-5 w-5" />
-          </span>
-          <span className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-            Campus Coin
-          </span>
+        <Link to="/" className="mb-8 flex items-center justify-center">
+          <img src={logoFull} alt="Campus Coin" className="h-9 w-auto" />
         </Link>
 
         <Card>

@@ -7,11 +7,11 @@ import {
   BarChart3,
   UserRound,
   LogOut,
-  PiggyBank,
   X,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { cn } from '../../utils/cn'
+import logoFull from '../../assets/logo-full.png'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -41,10 +41,7 @@ function Sidebar({ open, onClose }) {
       >
         <div className="flex items-center justify-between gap-2 px-5 py-5">
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
-              <PiggyBank className="h-5 w-5" />
-            </span>
-            <span className="font-semibold text-stone-900 dark:text-stone-100">Campus Coin</span>
+            <img src={logoFull} alt="Campus Coin" className="h-7 w-auto" />
           </div>
           <button
             onClick={onClose}
