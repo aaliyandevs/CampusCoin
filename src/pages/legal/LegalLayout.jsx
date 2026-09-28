@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
+import SiteFooter from '../../components/layout/SiteFooter'
 import logoFull from '../../assets/logo-full.png'
 
 function LegalLayout({ title, updated, children }) {
@@ -29,12 +30,7 @@ function LegalLayout({ title, updated, children }) {
         <div className="mt-10 flex flex-col gap-8">{children}</div>
       </main>
 
-      <footer className="border-t border-stone-200 dark:border-stone-800">
-        <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-8 text-sm text-stone-500 dark:text-stone-400 sm:px-6">
-          <img src={logoFull} alt="Campus Coin" className="h-6 w-auto" />
-          <span>— smart spending, student style.</span>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }
