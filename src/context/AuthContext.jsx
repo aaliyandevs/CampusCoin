@@ -45,9 +45,15 @@ export function AuthProvider({ children }) {
     return data.user
   }, [])
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY)
-    setUser(null)
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout()
+    } catch {
+      // Revoking server-side is best-effort — always clear the local session below.
+    } finally {
+      localStorage.removeItem(TOKEN_KEY)
+      setUser(null)
+    }
   }, [])
 
   const refreshUser = useCallback(async () => {

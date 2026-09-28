@@ -18,6 +18,7 @@ router.post('/login', authLimiter, validate(loginSchema), controller.login)
 router.post('/admin-login', authLimiter, validate(loginSchema), controller.adminLogin)
 router.post('/forgot-password', authLimiter, validate(forgotPasswordSchema), controller.forgotPassword)
 router.post('/reset-password', authLimiter, validate(resetPasswordSchema), controller.resetPassword)
+router.post('/logout', requireAuth, controller.logout)
 router.get('/me', requireAuth, controller.getMe)
 router.patch('/profile', requireAuth, validate(updateProfileSchema), controller.updateProfile)
 

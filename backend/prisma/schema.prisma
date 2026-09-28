@@ -46,6 +46,7 @@ model User {
   insights              Insight[]
   passwordResetTokens   PasswordResetToken[]
   announcements         Announcement[]
+  sessions              Session[]
 
   @@map("users")
 }
@@ -157,4 +158,18 @@ model PasswordResetToken {
   createdAt DateTime @default(now())
 
   @@map("password_reset_tokens")
+}
+
+model Session {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String   @unique
+  userAgent  String?  @db.VarChar(255)
+  expiresAt  DateTime
+  lastUsedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@map("sessions")
 }

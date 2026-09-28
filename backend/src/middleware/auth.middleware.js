@@ -1,18 +1,23 @@
-const { verifyToken } = require('../utils/jwt')
+const { verifySession } = require('../utils/session')
 
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
   const header = req.headers.authorization
   if (!header || !header.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'Authentication required' })
   }
 
-  try {
-    const payload = verifyToken(header.slice('Bearer '.length))
-    req.user = payload
-    next()
-  } catch {
-    return res.status(401).json({ message: 'Invalid or expired token' })
+  const rawToken = header.slice('Bearer '.length)
+  const user = await verifySession(rawToken)
+  if (!user) {
+    return res.status(401).json({ message: 'Session expired or invalid, please log in again' })
   }
+  if (user.isDisabled) {
+    return res.status(403).json({ message: 'This account has been disabled' })
+  }
+
+  req.user = { id: user.id, role: user.role }
+  req.sessionToken = rawToken
+  next()
 }
 
 function requireAdmin(req, res, next) {

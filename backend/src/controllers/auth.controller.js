@@ -1,7 +1,7 @@
 const prisma = require('../config/prisma')
 const asyncHandler = require('../utils/asyncHandler')
 const { hashPassword, comparePassword } = require('../utils/hash')
-const { signToken } = require('../utils/jwt')
+const { createSession, revokeSession } = require('../utils/session')
 const { hashResetToken } = require('../utils/resetToken')
 const { initiatePasswordReset } = require('../services/passwordReset.service')
 const { generateDueRecurringTransactions } = require('../services/recurring.service')
@@ -31,7 +31,7 @@ const register = asyncHandler(async (req, res) => {
     data: { name, email, passwordHash, role: 'STUDENT' },
   })
 
-  const token = signToken({ id: user.id, role: user.role })
+  const token = await createSession(user.id, req.headers['user-agent'])
   res.status(201).json({ token, user: toPublicUser(user) })
 })
 
@@ -54,7 +54,7 @@ const login = asyncHandler(async (req, res) => {
 
   await generateDueRecurringTransactions(user.id)
 
-  const token = signToken({ id: user.id, role: user.role })
+  const token = await createSession(user.id, req.headers['user-agent'])
   res.json({ token, user: toPublicUser(user) })
 })
 
@@ -71,8 +71,13 @@ const adminLogin = asyncHandler(async (req, res) => {
     return res.status(401).json({ message: 'Invalid email or password' })
   }
 
-  const token = signToken({ id: user.id, role: user.role })
+  const token = await createSession(user.id, req.headers['user-agent'])
   res.json({ token, user: toPublicUser(user) })
+})
+
+const logout = asyncHandler(async (req, res) => {
+  await revokeSession(req.sessionToken)
+  res.json({ message: 'Logged out' })
 })
 
 const forgotPassword = asyncHandler(async (req, res) => {
@@ -110,6 +115,8 @@ const resetPassword = asyncHandler(async (req, res) => {
       where: { id: resetToken.id },
       data: { usedAt: new Date() },
     }),
+    // A password reset invalidates every existing session on this account.
+    prisma.session.deleteMany({ where: { userId: resetToken.userId } }),
   ])
 
   res.json({ message: 'Password has been reset successfully' })
@@ -138,6 +145,7 @@ module.exports = {
   register,
   login,
   adminLogin,
+  logout,
   forgotPassword,
   resetPassword,
   getMe,

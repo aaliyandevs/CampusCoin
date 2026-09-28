@@ -49,6 +49,7 @@ const resetUserData = asyncHandler(async (req, res) => {
     prisma.savingTip.deleteMany({ where: { userId } }),
     prisma.insight.deleteMany({ where: { userId } }),
     prisma.passwordResetToken.deleteMany({ where: { userId } }),
+    prisma.session.deleteMany({ where: { userId } }),
     prisma.category.deleteMany({ where: { userId } }),
   ])
 
